@@ -10,6 +10,7 @@ export interface Product {
   type: "produit" | "service";
   desiredMargin: number;
   stock: number;
+  dateLancement?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -21,6 +22,7 @@ export interface CreateProductData {
   coutDeProduction: number;
   category: string;
   type: "produit" | "service";
+  dateLancement?: string;
   desiredMargin: number;
   stock: number;
 }
@@ -47,6 +49,7 @@ export interface TarificationResult {
   margin: number;
   userId: string;
   calculatedAt: string;
+  timeInMonths?: number;
 }
 
 export type TarificationMethod = "alignement" | "penetration" | "ecremage";
@@ -103,6 +106,7 @@ const productService = {
         coutDeProduction: Number(productData.coutDeProduction),
         desiredMargin: Number(productData.desiredMargin),
         stock: Number(productData.stock),
+        dateLancement: productData.dateLancement || new Date().toISOString(),
       });
       return response.data as Product;
     } catch (error: any) {
@@ -238,6 +242,31 @@ const productService = {
         error.response?.data?.message ||
           `Échec du calcul de l'alignement pour ${productId}`
       );
+    }
+  },
+
+  calculateTimeInMonths: (launchDate: string): number => {
+    if (!launchDate) return 0;
+    const launch = new Date(launchDate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - launch.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays / 30.44; // Approximation : 30.44 jours par mois
+  },
+
+  // Utilitaire pour formater l'affichage du temps
+  formatTimeInMonths: (months: number): string => {
+    if (months < 1) {
+      const days = Math.round(months * 30.44);
+      return `${days} jour${days > 1 ? "s" : ""}`;
+    } else if (months < 12) {
+      return `${months.toFixed(1)} mois`;
+    } else {
+      const years = Math.floor(months / 12);
+      const remainingMonths = Math.round(months % 12);
+      return `${years} an${years > 1 ? "s" : ""} ${
+        remainingMonths > 0 ? `et ${remainingMonths} mois` : ""
+      }`;
     }
   },
 

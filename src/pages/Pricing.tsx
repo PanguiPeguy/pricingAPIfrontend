@@ -1,11 +1,26 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
-import productService, { Product, OptimalPriceResult } from "@/services/productService";
+import productService, {
+  Product,
+  OptimalPriceResult,
+} from "@/services/productService";
 import { TrendingUp, Calculator, Zap } from "lucide-react";
 
 const Pricing = () => {
@@ -14,7 +29,9 @@ const Pricing = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [pricingResult, setPricingResult] = useState<OptimalPriceResult | null>(null);
+  const [pricingResult, setPricingResult] = useState<OptimalPriceResult | null>(
+    null
+  );
 
   useEffect(() => {
     fetchProducts();
@@ -22,7 +39,7 @@ const Pricing = () => {
 
   useEffect(() => {
     if (selectedProductId) {
-      const product = products.find(p => p.id === selectedProductId);
+      const product = products.find((p) => p.id === selectedProductId);
       setSelectedProduct(product || null);
     } else {
       setSelectedProduct(null);
@@ -59,7 +76,9 @@ const Pricing = () => {
 
     try {
       setIsCalculating(true);
-      const result = await productService.calculateOptimalPrice(selectedProductId);
+      const result = await productService.calculateOptimalPrice(
+        selectedProductId
+      );
       setPricingResult(result);
       toast({
         title: "Prix optimal calculé",
@@ -91,8 +110,10 @@ const Pricing = () => {
   // Calculate improvement percentage
   const calculateImprovement = () => {
     if (!pricingResult || !selectedProduct) return 0;
-    const originalMargin = selectedProduct.prixDesConcurrents - selectedProduct.coutDeProduction;
-    const newMargin = pricingResult.optimalPrice - selectedProduct.coutDeProduction;
+    const originalMargin =
+      selectedProduct.prixDesConcurrents - selectedProduct.coutDeProduction;
+    const newMargin =
+      pricingResult.optimalPrice - selectedProduct.coutDeProduction;
     return Math.round(((newMargin - originalMargin) / originalMargin) * 100);
   };
 
@@ -140,15 +161,17 @@ const Pricing = () => {
                     <p className="text-sm text-muted-foreground">Nom</p>
                     <p className="font-medium">{selectedProduct.name}</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Prix actuel</p>
+                      <p className="text-sm text-muted-foreground">
+                        Prix des Concurrrents
+                      </p>
                       <p className="font-medium">
                         {formatCurrency(selectedProduct.prixDesConcurrents)}
                       </p>
                     </div>
-                    
+
                     <div>
                       <p className="text-sm text-muted-foreground">Coût</p>
                       <p className="font-medium">
@@ -156,23 +179,30 @@ const Pricing = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Marge</p>
                       <p className="font-medium">
-                        {formatCurrency(selectedProduct.prixDesConcurrents - selectedProduct.coutDeProduction)}
+                        {formatCurrency(
+                          selectedProduct.prixDesConcurrents -
+                            selectedProduct.coutDeProduction
+                        )}
                       </p>
                     </div>
-                    
+
                     <div>
-                      <p className="text-sm text-muted-foreground">Pourcentage</p>
+                      <p className="text-sm text-muted-foreground">
+                        marge desiree
+                      </p>
                       <p className="font-medium">
                         {Math.round(
-                          ((selectedProduct.prixDesConcurrents - selectedProduct.coutDeProduction) /
+                          ((selectedProduct.prixDesConcurrents -
+                            selectedProduct.coutDeProduction) /
                             selectedProduct.prixDesConcurrents) *
                             100
-                        )}%
+                        )}
+                        %
                       </p>
                     </div>
                   </div>
@@ -188,7 +218,8 @@ const Pricing = () => {
                   "Calcul en cours..."
                 ) : (
                   <>
-                    <Calculator className="mr-2 h-4 w-4" /> Calculer le prix optimal
+                    <Calculator className="mr-2 h-4 w-4" /> Calculer le prix
+                    optimal
                   </>
                 )}
               </Button>
@@ -210,9 +241,12 @@ const Pricing = () => {
                   <div className="rounded-full bg-blue-100 p-4 mb-4">
                     <Zap className="h-8 w-8 text-primary" />
                   </div>
-                  <h3 className="text-lg font-medium mb-2">Pas encore de calcul</h3>
+                  <h3 className="text-lg font-medium mb-2">
+                    Pas encore de calcul
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Sélectionnez un produit et lancez le calcul pour voir les résultats d'optimisation de prix
+                    Sélectionnez un produit et lancez le calcul pour voir les
+                    résultats d'optimisation de prix
                   </p>
                 </div>
               ) : (
@@ -227,7 +261,7 @@ const Pricing = () => {
                         </CardTitle>
                       </CardHeader>
                     </Card>
-                    
+
                     <Card className="bg-primary/10">
                       <CardHeader className="pb-2">
                         <CardDescription>Prix optimal</CardDescription>
@@ -251,7 +285,7 @@ const Pricing = () => {
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
                         Marge estimée
@@ -260,7 +294,7 @@ const Pricing = () => {
                         {formatCurrency(pricingResult.margin)}
                       </p>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
                         Revenu potentiel
@@ -278,29 +312,52 @@ const Pricing = () => {
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Coût</span>
-                          <span>{formatCurrency(selectedProduct?.coutDeProduction || 0)}</span>
+                          <span>
+                            {formatCurrency(
+                              selectedProduct?.coutDeProduction || 0
+                            )}
+                          </span>
                         </div>
-                        <Progress value={(selectedProduct?.coutDeProduction || 0) / pricingResult.optimalPrice * 100} className="h-2" />
+                        <Progress
+                          value={
+                            ((selectedProduct?.coutDeProduction || 0) /
+                              pricingResult.optimalPrice) *
+                            100
+                          }
+                          className="h-2"
+                        />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Marge</span>
                           <span>{formatCurrency(pricingResult.margin)}</span>
                         </div>
-                        <Progress value={pricingResult.margin / pricingResult.optimalPrice * 100} className="h-2 bg-muted" />
+                        <Progress
+                          value={
+                            (pricingResult.margin /
+                              pricingResult.optimalPrice) *
+                            100
+                          }
+                          className="h-2 bg-muted"
+                        />
                       </div>
-                      
+
                       <div className="flex justify-between text-sm font-medium mt-2">
                         <span>Prix optimal</span>
-                        <span>{formatCurrency(pricingResult.optimalPrice)}</span>
+                        <span>
+                          {formatCurrency(pricingResult.optimalPrice)}
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   {/* Last calculation */}
                   <div className="mt-6 pt-4 border-t text-sm text-muted-foreground">
-                    <p>Calcul effectué le {formatDate(pricingResult.calculatedAt)}</p>
+                    <p>
+                      Calcul effectué le{" "}
+                      {formatDate(pricingResult.calculatedAt)}
+                    </p>
                   </div>
                 </div>
               )}

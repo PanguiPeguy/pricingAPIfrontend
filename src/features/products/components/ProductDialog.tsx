@@ -24,7 +24,16 @@ import productService, {
   PRODUCT_CATEGORIES,
   PRODUCT_TYPES,
 } from "@/services/productService";
-
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 interface ProductDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -39,6 +48,9 @@ export const ProductDialog = ({
   onProductUpdated,
 }: ProductDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [dateLancement, setDateLancement] = useState<Date | undefined>(
+    undefined
+  );
   const [formData, setFormData] = useState<CreateProductData>({
     name: "",
     description: "",
@@ -65,6 +77,11 @@ export const ProductDialog = ({
         competitorPrice: currentProduct.competitorPrice || 0,
         desiredMargin: currentProduct.desiredMargin || 0,
       });
+      if (currentProduct.dateLancement) {
+        setDateLancement(new Date(currentProduct.dateLancement));
+      } else {
+        setDateLancement(undefined);
+      }
     } else {
       // Reset pour un nouveau produit
       resetForm();
@@ -89,6 +106,10 @@ export const ProductDialog = ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleDateChange = (date: Date | undefined) => {
+    setDateLancement(date);
   };
 
   const handleCreateProduct = async (e: React.FormEvent) => {
@@ -153,7 +174,21 @@ export const ProductDialog = ({
       competitorPrice: 0,
       desiredMargin: 0,
     });
+    setDateLancement(undefined);
   };
+
+  const getTimeInfo = () => {
+    if (!dateLancement) return null;
+    const timeInMonths = productService.calculateTimeInMonths(
+      dateLancement.toISOString()
+    );
+    return {
+      months: timeInMonths,
+      formatted: productService.formatTimeInMonths(timeInMonths),
+    };
+  };
+
+  const timeInfo = getTimeInfo();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -237,9 +272,48 @@ export const ProductDialog = ({
               </div>
             </div>
 
+            <div className="grid gap-2">
+              <Label>Date de lancement</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dateLancement && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateLancement ? (
+                      format(dateLancement, "PPP", { locale: fr })
+                    ) : (
+                      <span>Sélectionner une date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateLancement}
+                    onSelect={handleDateChange}
+                    initialFocus
+                    locale={fr}
+                  />
+                </PopoverContent>
+              </Popover>
+              {timeInfo && (
+                <p className="text-sm text-muted-foreground">
+                  Temps écoulé : {timeInfo.formatted} (
+                  {timeInfo.months.toFixed(1)} mois)
+                </p>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="prixDesConcurrents">Prix des Concurrents</Label>
+                <Label htmlFor="prixDesConcurrents">
+                  Prix moyen des Concurrents
+                </Label>
                 <Input
                   id="prixDesConcurrents"
                   name="prixDesConcurrents"

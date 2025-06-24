@@ -1,7 +1,6 @@
-
-import { useState, useEffect } from 'react';
-import productService, { Product } from '@/services/productService';
-import { toast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import productService, { Product } from "@/services/productService";
+import { toast } from "@/hooks/use-toast";
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -34,7 +33,9 @@ export const useProducts = () => {
       const result = await productService.calculateOptimalPrice(product.id);
       toast({
         title: "Prix optimal calculé",
-        description: `Prix optimal pour ${product.name}: ${formatCurrency(result.optimalPrice)}`,
+        description: `Prix optimal pour ${product.name}: ${formatCurrency(
+          result.optimalPrice
+        )}`,
       });
     } catch (error) {
       console.error("Error calculating optimal price:", error);
@@ -46,29 +47,27 @@ export const useProducts = () => {
     }
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Grouped products by category
-  const productsByCategory = filteredProducts.reduce(
-    (acc, product) => {
-      const category = product.category || "Non catégorisé";
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(product);
-      return acc;
-    },
-    {} as Record<string, Product[]>
-  );
+  const productsByCategory = filteredProducts.reduce((acc, product) => {
+    const category = product.category || "Non catégorisé";
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(product);
+    return acc;
+  }, {} as Record<string, Product[]>);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("fr-FR", {
       style: "currency",
-      currency: "EUR",
+      currency: "XAF",
     }).format(value);
   };
 
@@ -81,6 +80,6 @@ export const useProducts = () => {
     setSearchTerm,
     fetchProducts,
     calculateOptimalPrice,
-    formatCurrency
+    formatCurrency,
   };
 };
